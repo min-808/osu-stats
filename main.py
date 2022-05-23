@@ -267,7 +267,7 @@ def askforName():
                 print("S's:  " + str("{:,}".format(gradeS)) + " (" + str(gradeSRatio) + "%)" + "\n")
                 print("A's: " + str("{:,}".format(gradeA)) + " (" + str(gradeARatio) + "%)" + "\n")
 
-                print("Total clss: " + str("{:,}".format(totalGrades)))
+                print("Total Clears: " + str("{:,}".format(totalGrades)))
                 
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
