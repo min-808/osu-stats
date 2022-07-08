@@ -8,6 +8,8 @@ correctCapitalization = ""
 
 response = ""
 parsedResponse = ""
+bestResponse = ""
+parsedbestReponse = ""
 
 editAPI = False
 
@@ -19,7 +21,7 @@ def askforAPI():
     if (checking == "") or (editAPI == True):
         print("Before you start using this application, you must set an API key")
         print("Once set, we won't ask you again unless it's invalid!")
-        apiCode = str(input("\nPaste in your API key, found at https://old.ppy.sh/p/api/\n").strip())
+        apiCode = str(input("\nPaste in your API key, found at https://old.ppy.sh/p/api\n").strip())
         api = open("api.txt", "w")
         api.write(apiCode)
         api.close()
@@ -27,11 +29,14 @@ def askforAPI():
         time.sleep(1.5)
         askforName()
     else:
-        print("else output")
+        print("API Key already filled in!")
+        # time.sleep(1) This won't display, but if it skips to askforName() it means it was successful
 
 def askforName():
     global response
     global parsedResponse
+    global bestResponse
+    global parsedbestResponse
     global osuName
     global correctCapitalization
     os.system("cls")
@@ -41,6 +46,8 @@ def askforName():
     osuName = str(input("Hello! Input your osu! username\n").strip())
     response = requests.get("https://osu.ppy.sh/api/get_user?k=" + readapiKey + "&u=" + osuName + "&m=0")
     parsedResponse = response.json()
+    bestResponse = requests.get("https://osu.ppy.sh/api/get_user_best?k=" + readapiKey + "&u=" + osuName + "&m=0" + "&limit=1")
+    parsedbestResponse = bestResponse.json()
     if (parsedResponse == []) or (parsedResponse == {"error":"Please provide a valid API key."}):
         def foundError():
             global editAPI
@@ -68,7 +75,7 @@ def askforName():
         def optionsList():
             global correctCapitalization
             print("Welcome", correctCapitalization + ", from " + country + "\n")
-            print("-\n\n1. Ranks\n2. PP\n3. Level\n4. Accuracy\n5. Playcount & Playtime\n6. Score\n7. 300-100-50 Hit Ratio\n8. Grades\n\nC. Change username\nI. Info\nE. Exit\n")
+            print("-\n\n1. Ranks\n2. PP\n3. Level\n4. Accuracy\n5. Playcount & Playtime\n6. Score\n7. 300-100-50 Hit Ratio\n8. Grades\n9. Join Date\n0. Best & Recent Scores\n\nC. Change username\nI. Info\nE. Exit\n")
             chosenOption = str(input("-\n\nChoose an option: ").strip().capitalize())
             
             if chosenOption == "1":
@@ -267,7 +274,49 @@ def askforName():
                 print("S's:  " + str("{:,}".format(gradeS)) + " (" + str(gradeSRatio) + "%)" + "\n")
                 print("A's: " + str("{:,}".format(gradeA)) + " (" + str(gradeARatio) + "%)" + "\n")
 
-                print("Total Clears: " + str("{:,}".format(totalGrades)))
+                print("Total clears: " + str("{:,}".format(totalGrades)))
+                
+                def askagainOptions():
+                    askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
+                    if askAgain == "Y":
+                        print("\nLoading..")
+                        time.sleep(1)
+                        os.system("cls")
+                        optionsList()
+                    elif askAgain == "N":
+                        print("\nThanks for using my app!")
+                        time.sleep(1)
+                        sys.exit()
+                    else:
+                        print("\nNot a valid option!")
+                        askagainOptions()
+                askagainOptions()
+
+            elif chosenOption == "9":
+                os.system("cls")
+                joinDate = str(parsedResponse[0]["join_date"])
+                print("You joined osu! on: " + joinDate[0:10] + " at " + joinDate[11:20] + " (UTC)")
+                
+                def askagainOptions():
+                    askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
+                    if askAgain == "Y":
+                        print("\nLoading..")
+                        time.sleep(1)
+                        os.system("cls")
+                        optionsList()
+                    elif askAgain == "N":
+                        print("\nThanks for using my app!")
+                        time.sleep(1)
+                        sys.exit()
+                    else:
+                        print("\nNot a valid option!")
+                        askagainOptions()
+                askagainOptions()
+
+            elif chosenOption == "0":
+                os.system("cls")
+                bestbeatmapID = parsedbestResponse[0]["beatmap_id"]
+                print(bestbeatmapID)
                 
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
@@ -317,9 +366,28 @@ def askforName():
                 time.sleep(1)
                 sys.exit()
 
-            elif chosenOption == "Debug":
+            elif chosenOption == "Debug1":
                 os.system("cls")
                 print(parsedResponse)
+                def askagainOptions():
+                    askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
+                    if askAgain == "Y":
+                        print("\nLoading..")
+                        time.sleep(1)
+                        os.system("cls")
+                        optionsList()
+                    elif askAgain == "N":
+                        print("\nThanks for using my app!")
+                        time.sleep(1)
+                        sys.exit()
+                    else:
+                        print("\nNot a valid option!")
+                        askagainOptions()
+                askagainOptions()
+
+            elif chosenOption == "Debug2":
+                os.system("cls")
+                print(parsedbestResponse)
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
                     if askAgain == "Y":
