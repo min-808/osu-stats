@@ -10,6 +10,8 @@ response = ""
 parsedResponse = ""
 bestResponse = ""
 parsedbestReponse = ""
+recentResponse = ""
+parsedrecentResponse = ""
 
 editAPI = False
 
@@ -19,9 +21,9 @@ def askforAPI():
     checkAPI = open("api.txt", "r")
     checking = checkAPI.read()
     if (checking == "") or (editAPI == True):
-        print("Before you start using this application, you must set an API key")
+        print("Before you start using this application you must set an API key")
         print("Once set, we won't ask you again unless it's invalid!")
-        apiCode = str(input("\nPaste in your API key, found at https://old.ppy.sh/p/api\n").strip())
+        apiCode = str(input("\nPaste in your API key, found at https://old.ppy.sh/p/api/\n").strip())
         api = open("api.txt", "w")
         api.write(apiCode)
         api.close()
@@ -37,6 +39,8 @@ def askforName():
     global parsedResponse
     global bestResponse
     global parsedbestResponse
+    global recentResponse
+    global parsedrecentReponse
     global osuName
     global correctCapitalization
     os.system("cls")
@@ -46,8 +50,6 @@ def askforName():
     osuName = str(input("Hello! Input your osu! username\n").strip())
     response = requests.get("https://osu.ppy.sh/api/get_user?k=" + readapiKey + "&u=" + osuName + "&m=0")
     parsedResponse = response.json()
-    bestResponse = requests.get("https://osu.ppy.sh/api/get_user_best?k=" + readapiKey + "&u=" + osuName + "&m=0" + "&limit=1")
-    parsedbestResponse = bestResponse.json()
     if (parsedResponse == []) or (parsedResponse == {"error":"Please provide a valid API key."}):
         def foundError():
             global editAPI
@@ -67,6 +69,12 @@ def askforName():
         foundError()
             
     else:
+        bestResponse = requests.get("https://osu.ppy.sh/api/get_user_best?k=" + readapiKey + "&u=" + osuName + "&m=0" + "&limit=1")
+        parsedbestResponse = bestResponse.json()
+
+        recentResponse = requests.get("https://osu.ppy.sh/api/get_user_recent?k=" + readapiKey + "&u=" + osuName + "&m=0" + "&limit=1")
+        parsedrecentResponse = recentResponse.json()
+    
         country = parsedResponse[0]["country"]
         correctCapitalization = parsedResponse[0]["username"]
         print("\n! Username validated")
@@ -316,7 +324,43 @@ def askforName():
             elif chosenOption == "0":
                 os.system("cls")
                 bestbeatmapID = parsedbestResponse[0]["beatmap_id"]
-                print(bestbeatmapID)
+                bestbeatmapResponse = requests.get("https://osu.ppy.sh/api/get_beatmaps?k=" + readapiKey + "&b=" + bestbeatmapID + "&m=0&limit=1")
+                parsedbestbeatmapResponse = bestbeatmapResponse.json()
+
+                recentbeatmapID = parsedrecentResponse[0]["beatmap_id"]
+                recentbeatmapResponse = requests.get("https://osu.ppy.sh/api/get_beatmaps?k=" + readapiKey + "&b=" + recentbeatmapID + "&m=0&limit=1")
+                parsedrecentbeatmapResponse = recentbeatmapResponse.json()
+
+                # Best beatmap API grabbing
+                bestbeatmapArtist = parsedbestbeatmapResponse[0]["artist_unicode"]
+                bestbeatmapName = parsedbestbeatmapResponse[0]["title_unicode"]
+                bestbeatmapDiff = parsedbestbeatmapResponse[0]["version"]
+                bestbeatmapPP = parsedbestResponse[0]["pp"]
+                bestbeatmapRank = parsedbestResponse[0]["rank"]
+                bestbeatmapCreator = parsedbestbeatmapResponse[0]["creator"]
+                bestbeatmapDate = parsedbestResponse[0]["date"]
+                # Best ends here
+
+                # Recent beatmap API grabbing
+                recentbeatmapArtist = parsedrecentbeatmapResponse[0]["artist_unicode"]
+                recentbeatmapName = parsedrecentbeatmapResponse[0]["title_unicode"]
+                recentbeatmapDiff = parsedrecentbeatmapResponse[0]["version"]
+                recentbeatmapRank = parsedrecentResponse[0]["rank"]
+                recentbeatmapCreator = parsedrecentbeatmapResponse[0]["creator"]
+                recentbeatmapDate = parsedrecentResponse[0]["date"]
+                # Recent ends here
+
+                print("Your best osu! score is on:\n")
+                print(bestbeatmapArtist + " - " + bestbeatmapName + " [" + bestbeatmapDiff + "] (" + bestbeatmapCreator + ")")
+                print(bestbeatmapRank + " Rank | " + bestbeatmapPP + " pp")
+                print("Achieved on " + bestbeatmapDate[0:10] + " at " + bestbeatmapDate[11:20] + " (UTC)")
+
+                print("\n")
+
+                print("Your most recent osu! score is on:\n")
+                print(recentbeatmapArtist + " - " + recentbeatmapName + " [" + recentbeatmapDiff + "] (" + recentbeatmapCreator + ")")
+                print(recentbeatmapRank + " Rank")
+                print("Achieved on " + recentbeatmapDate[0:10] + " at " + recentbeatmapDate[11:20] + " (UTC)")
                 
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
@@ -342,8 +386,8 @@ def askforName():
                 os.system("cls")
                 print("osu!Stats made by Min\n")
                 print("This is pretty much the osu! website on a console window lol")
-                print("Kinda useless but it was fun to make :)")
-                print("\nPulled API information from osu!api v1 with the requests library, coded in Python")
+                print("It's kinda useless but it was fun to make + I learned about APIs")
+                print("\nI used osu!api v1 and Python's requests library")
 
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
@@ -388,6 +432,25 @@ def askforName():
             elif chosenOption == "Debug2":
                 os.system("cls")
                 print(parsedbestResponse)
+                def askagainOptions():
+                    askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
+                    if askAgain == "Y":
+                        print("\nLoading..")
+                        time.sleep(1)
+                        os.system("cls")
+                        optionsList()
+                    elif askAgain == "N":
+                        print("\nThanks for using my app!")
+                        time.sleep(1)
+                        sys.exit()
+                    else:
+                        print("\nNot a valid option!")
+                        askagainOptions()
+                askagainOptions()
+
+            elif chosenOption == "Debug3":
+                os.system("cls")
+                print(parsedrecentResponse)
                 def askagainOptions():
                     askAgain = str(input("\n-\n\nEnter 'Y' to select another option, or enter 'N' to exit\n").strip().capitalize())
                     if askAgain == "Y":
